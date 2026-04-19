@@ -109,7 +109,6 @@ export async function POST(request: NextRequest) {
     }
 
     const session = await stripe.checkout.sessions.create({
-      // @ts-expect-error — stripe types outdated
       ui_mode: 'embedded_page',
       mode: 'payment',
       line_items: lineItems,
