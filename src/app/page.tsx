@@ -66,22 +66,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* System Overview */}
-      <section className="border-b border-border">
-        <div className="max-w-[1440px] mx-auto px-4 md:px-8 py-16 md:py-24">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12">
-            <div className="md:col-span-4">
-              <SectionLabel label="System Overview" code="§ 001" />
-            </div>
-            <div className="md:col-span-8">
-              <h2 className="text-xl md:text-2xl font-medium tracking-[0.05em] leading-relaxed">
-                Tink operates as an ongoing body of work built through observation and development. Each compound—whether object, garment, or digital—comes from something identified and worked through over time.
-              </h2>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Featured Doses */}
       <section className="border-b border-border">
         <div className="max-w-[1440px] mx-auto px-4 md:px-8 py-16 md:py-24">
