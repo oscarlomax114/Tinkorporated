@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe';
 import { compounds } from '@/data/compounds';
 import { createClient } from '@/lib/supabase/server';
@@ -108,7 +107,8 @@ export async function POST(request: NextRequest) {
     }
 
     const session = await stripe.checkout.sessions.create({
-      ui_mode: 'embedded' as Stripe.Checkout.SessionCreateParams.UiMode,
+      // @ts-expect-error — stripe types don't include 'embedded' yet
+      ui_mode: 'embedded',
       mode: 'payment',
       line_items: lineItems,
       return_url: `${baseUrl}/prescription/success?session_id={CHECKOUT_SESSION_ID}`,
