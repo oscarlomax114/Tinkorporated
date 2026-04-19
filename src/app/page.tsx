@@ -24,7 +24,7 @@ export default function HomePage() {
       <section className="relative min-h-[90vh] flex flex-col items-center justify-center border-b border-border overflow-hidden">
         {/* Background image */}
         <Image
-          src="/tink-hero-bg.png"
+          src="/tink-hero-bg.jpg"
           alt=""
           fill
           priority
