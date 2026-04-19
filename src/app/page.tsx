@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import DoseCard from '@/components/ui/DoseCard';
+import HeroVideo from '@/components/ui/HeroVideo';
 import SectionLabel from '@/components/ui/SectionLabel';
 import CTABar from '@/components/ui/CTABar';
 import RestrictedBlock from '@/components/ui/RestrictedBlock';
@@ -21,15 +21,9 @@ export default function HomePage() {
       </div>
 
       {/* Hero */}
-      <section className="relative min-h-[90vh] flex flex-col items-center justify-center border-b border-border overflow-hidden">
-        {/* Background image */}
-        <Image
-          src="/tink-hero-bg.jpg"
-          alt=""
-          fill
-          priority
-          className="object-cover object-center scale-[1.4] md:scale-100"
-        />
+      <section className="relative border-b border-border overflow-hidden hero-section">
+        {/* Background video */}
+        <HeroVideo />
         <div className="absolute inset-0 scanline-overlay" />
 
         <div className="absolute top-3 left-1/2 -translate-x-1/2 text-[9px] font-mono text-white/60 tracking-[0.1em] hidden md:block">
@@ -38,26 +32,26 @@ export default function HomePage() {
 
         <div className="absolute top-[34%] left-1/2 -translate-x-1/2 text-center animate-fade-in z-10">
           <h1 className="sr-only">TINKORPORATED</h1>
-          <div className="text-[11px] md:text-xs font-mono tracking-[0.35em] text-white/60">
+          <div className="text-[10px] md:text-xs font-mono tracking-[0.35em] text-white/60">
             TINKORPORATED
           </div>
         </div>
 
-        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 text-center animate-fade-in stagger-3">
-          <p className="text-sm md:text-base tracking-[0.1em] text-white/90 max-w-lg mx-auto leading-relaxed">
+        <div className="absolute bottom-16 md:bottom-20 left-1/2 -translate-x-1/2 text-center animate-fade-in stagger-3 w-full px-4">
+          <p className="text-xs md:text-base tracking-[0.1em] text-white/90 max-w-lg mx-auto leading-relaxed">
             Ideas, formulated as treatments.
           </p>
-          <p className="text-xs tracking-[0.08em] text-white/60 mt-2 max-w-md mx-auto">
+          <p className="text-[10px] md:text-xs tracking-[0.08em] text-white/60 mt-2 max-w-md mx-auto">
             Observe, Interpret, Distribute.
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-3 mt-5">
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-4 md:mt-5">
             <span className="text-[9px] font-mono tracking-[0.15em] uppercase text-white/70 border border-white/40 px-3 py-1.5 hover:border-white/80 hover:text-white transition-colors cursor-default">
               Dosage
             </span>
           </div>
         </div>
 
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-fade-in stagger-5">
+        <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-fade-in stagger-5">
           <span className="text-[9px] font-mono tracking-[0.2em] text-white/40">SCROLL</span>
           <div className="w-[1px] h-6 bg-white/20 relative overflow-hidden">
             <div className="absolute inset-x-0 h-3 bg-white/40" style={{ animation: 'scanline 2s ease-in-out infinite' }} />

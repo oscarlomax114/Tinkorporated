@@ -455,6 +455,31 @@ body {
   pointer-events: none;
 }
 
+/* Hero section: responsive height to prevent logo cropping */
+.hero-section {
+  /* Desktop: full viewport height */
+  min-height: 90vh;
+}
+
+@media (max-width: 1024px) {
+  .hero-section {
+    /* Transition zone: cap height relative to width to limit cropping.
+       aspect-ratio ~3/2 keeps ~66% of video width visible */
+    min-height: 0;
+    aspect-ratio: 3 / 2;
+    max-height: 90vh;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-section {
+    /* Small screens: taller portrait feel, video is scaled up 20% to keep logo visible */
+    aspect-ratio: auto;
+    min-height: 65vh;
+    max-height: none;
+  }
+}
+
 /* Reduced motion: skip everything */
 @media (prefers-reduced-motion: reduce) {
   .entry-overlay {
