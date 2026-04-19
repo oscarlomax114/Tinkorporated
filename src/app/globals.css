@@ -1,26 +1,463 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'TinkSystem';
+  src: local('Inter'), local('Helvetica Neue'), local('Arial');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #000000;
+  --foreground: #ffffff;
+  --muted: #888888;
+  --border: #222222;
+  --border-light: #333333;
+  --accent-blue: #0066ff;
+  --accent-red: #ff2200;
+  --accent-green: #00cc66;
+  --surface: #0a0a0a;
+  --surface-elevated: #111111;
+  --surface-hover: #1a1a1a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-border-light: var(--border-light);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-red: var(--accent-red);
+  --color-accent-green: var(--accent-green);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-hover: var(--surface-hover);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+}
+
+::selection {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+@keyframes pulse-bar {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+@keyframes typeIn {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s ease-out forwards;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.4s ease-out forwards;
+}
+
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+.stagger-6 { animation-delay: 0.3s; }
+
+/* Utility classes */
+.border-rule {
+  border-color: var(--border);
+}
+
+.text-label {
+  font-size: 0.625rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-family: var(--font-mono), monospace;
+}
+
+.text-system {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.grid-clinical {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1px;
+}
+
+/* Hover effects */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+.hover-border {
+  transition: border-color 0.2s ease;
+}
+
+.hover-border:hover {
+  border-color: var(--foreground);
+}
+
+/* Scanline overlay */
+.scanline-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.015) 2px,
+    rgba(255, 255, 255, 0.015) 4px
+  );
+  pointer-events: none;
+}
+
+/* Status indicator */
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-active {
+  background: var(--accent-green);
+  box-shadow: 0 0 6px var(--accent-green);
+}
+
+.status-restricted {
+  background: var(--accent-red);
+  box-shadow: 0 0 6px var(--accent-red);
+}
+
+.status-pending {
+  background: var(--accent-blue);
+  box-shadow: 0 0 6px var(--accent-blue);
+}
+
+/* ═══════════════════════════════════════
+   ENTRY ANIMATION
+   Dark frosted pharmacy doors + flicker + CCTV
+   ═══════════════════════════════════════ */
+
+.entry-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  /* --- TOTAL FADE OUT SPEED --- */
+  transition: opacity 0.4s ease;
+}
+
+.entry-overlay[data-phase="fading"] {
+  opacity: 0;
+}
+
+/* --- FLUORESCENT FLICKER ---
+   Adjust keyframe opacity values to change flicker intensity.
+   Increase/decrease animation-duration for speed. */
+.entry-flicker {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0);
+  animation: entryFlicker 0.4s ease-out forwards;
+}
+
+@keyframes entryFlicker {
+  0%   { background: rgba(255, 255, 255, 0); }
+  8%   { background: rgba(255, 255, 255, 0.06); }
+  12%  { background: rgba(255, 255, 255, 0); }
+  28%  { background: rgba(255, 255, 255, 0.04); }
+  33%  { background: rgba(255, 255, 255, 0); }
+  55%  { background: rgba(255, 255, 255, 0.03); }
+  60%  { background: rgba(255, 255, 255, 0); }
+  100% { background: rgba(255, 255, 255, 0); }
+}
+
+/* --- DOOR PANELS ---
+   Each door is 50% width. They slide outward from center.
+   Adjust transition duration to change door speed. */
+.entry-door {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  z-index: 2;
+  /* --- DOOR SPEED --- */
+  transition: transform 0.9s cubic-bezier(0.4, 0, 0.15, 1);
+  overflow: hidden;
+}
+
+.entry-door-left {
+  left: 0;
+  transform: translateX(0);
+}
+
+.entry-door-right {
+  right: 0;
+  transform: translateX(0);
+}
+
+.entry-overlay[data-phase="opening"] .entry-door-left,
+.entry-overlay[data-phase="fading"] .entry-door-left {
+  transform: translateX(-100%);
+}
+
+.entry-overlay[data-phase="opening"] .entry-door-right,
+.entry-overlay[data-phase="fading"] .entry-door-right {
+  transform: translateX(100%);
+}
+
+/* Door surface — dark frosted glass effect */
+.entry-door-surface {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    #0a0a0a 0%,
+    #0d0d0d 40%,
+    #080808 100%
+  );
+  /* Frosted glass feel */
+  backdrop-filter: blur(20px) saturate(0.5);
+  -webkit-backdrop-filter: blur(20px) saturate(0.5);
+}
+
+/* Subtle reflection on glass */
+.entry-door-left .entry-door-surface::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.06) 30%,
+    rgba(255, 255, 255, 0.03) 70%,
+    transparent 100%
+  );
+}
+
+.entry-door-right .entry-door-surface::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.06) 30%,
+    rgba(255, 255, 255, 0.03) 70%,
+    transparent 100%
+  );
+}
+
+/* Ambient overhead glow on doors */
+.entry-door-surface::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  left: 10%;
+  right: 10%;
+  height: 40%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.02) 0%,
+    transparent 70%
+  );
+}
+
+/* --- CENTER SEAM --- */
+.entry-seam {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  z-index: 3;
+  transition: opacity 0.3s ease;
+}
+
+.entry-overlay[data-phase="opening"] .entry-seam,
+.entry-overlay[data-phase="fading"] .entry-seam {
+  opacity: 0;
+}
+
+/* --- CCTV PANEL ---
+   Adjust bottom/right for position.
+   Adjust width/height for size.
+   Set opacity to 0 to hide entirely. */
+.entry-cctv {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  width: 140px;
+  height: 96px;
+  z-index: 4;
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+}
+
+.entry-overlay[data-phase="opening"] .entry-cctv {
+  opacity: 0.3;
+}
+
+.entry-overlay[data-phase="fading"] .entry-cctv {
+  opacity: 0;
+}
+
+.entry-cctv-inner {
+  width: 100%;
+  height: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #050505;
+  position: relative;
+  overflow: hidden;
+}
+
+/* CCTV scanlines */
+.entry-cctv-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.02) 2px,
+    rgba(255, 255, 255, 0.02) 4px
+  );
+  pointer-events: none;
+}
+
+/* CCTV content — rec dot + timestamp */
+.entry-cctv-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 6px 8px;
+}
+
+.entry-cctv-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ff3300;
+  box-shadow: 0 0 4px rgba(255, 51, 0, 0.6);
+  animation: cctvBlink 1.2s ease-in-out infinite;
+}
+
+@keyframes cctvBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.entry-cctv-timestamp {
+  font-family: var(--font-mono), monospace;
+  font-size: 7px;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.25);
+}
+
+/* CCTV noise texture */
+.entry-cctv-noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.08;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 128px 128px;
+  mix-blend-mode: overlay;
+}
+
+/* Ambient vignette on CCTV */
+.entry-cctv-inner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 40%,
+    rgba(0, 0, 0, 0.5) 100%
+  );
+  pointer-events: none;
+}
+
+/* Reduced motion: skip everything */
+@media (prefers-reduced-motion: reduce) {
+  .entry-overlay {
+    display: none;
+  }
 }
