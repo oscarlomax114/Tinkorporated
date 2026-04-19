@@ -109,8 +109,8 @@ export async function POST(request: NextRequest) {
     }
 
     const session = await stripe.checkout.sessions.create({
-      // @ts-expect-error — stripe types don't include 'embedded' yet
-      ui_mode: 'embedded',
+      // @ts-expect-error — stripe types outdated
+      ui_mode: 'embedded_page',
       mode: 'payment',
       line_items: lineItems,
       return_url: `${baseUrl}/prescription/success?session_id={CHECKOUT_SESSION_ID}`,
@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
       automatic_tax: { enabled: false },
     });
 
-    return NextResponse.json({ clientSecret: session.client_secret });
+    return NextResponse.json({ url: session.url, clientSecret: session.client_secret });
   } catch (err) {
     console.error('[checkout] error', err);
     const message = err instanceof Error ? err.message : 'Checkout failed';
