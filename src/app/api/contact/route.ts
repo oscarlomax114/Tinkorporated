@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY!);
+}
 
 const CONTACT_EMAIL = 'tinkorporated@gmail.com';
 
@@ -36,7 +38,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 });
     }
 
-    const { error } = await resend.emails.send({
+    const { error } = await getResend().emails.send({
       from: 'Tinkorporated <no-reply@tinkorporated.com>',
       to: CONTACT_EMAIL,
       replyTo: email,

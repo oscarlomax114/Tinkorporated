@@ -2,8 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const CONTACT_EMAIL = 'tinkorporated@gmail.com';
+
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY!);
+}
 
 export async function GET() {
   try {
@@ -100,7 +103,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Notify admin.
-    await resend.emails.send({
+    await getResend().emails.send({
       from: 'Tinkorporated <no-reply@tinkorporated.com>',
       to: CONTACT_EMAIL,
       subject: `[Lab Access] Auto-Approved — ${applicantName || applicantEmail}`,
@@ -117,7 +120,7 @@ export async function POST(request: NextRequest) {
     }).catch(() => {});
 
     // Confirmation email to user.
-    await resend.emails.send({
+    await getResend().emails.send({
       from: 'Tinkorporated <no-reply@tinkorporated.com>',
       to: applicantEmail,
       subject: 'Lab Access Approved — Tinkorporated',
