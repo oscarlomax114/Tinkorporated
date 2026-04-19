@@ -61,15 +61,17 @@ export async function POST(request: NextRequest) {
 
       const qty = Math.max(1, Math.floor(item.quantity || 1));
 
-      // Check live inventory for all database-tracked products
-      {
+      // Check live inventory (skip if table not available)
+      try {
         const currentStock = await getInventory(compound.id, selectedOption ?? null);
-        if (currentStock < qty) {
+        if (currentStock !== null && currentStock < qty) {
           return NextResponse.json(
             { error: `Insufficient stock for ${compound.name}${selectedOption ? ` — ${selectedOption}` : ''}` },
             { status: 400 }
           );
         }
+      } catch (err) {
+        console.error('[checkout] inventory check failed, proceeding:', err);
       }
       const productName = selectedOption
         ? `${compound.name} — Compound ${selectedOption}`
