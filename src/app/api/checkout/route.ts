@@ -109,12 +109,11 @@ export async function POST(request: NextRequest) {
     }
 
     const session = await stripe.checkout.sessions.create({
-      ui_mode: 'embedded_page',
       mode: 'payment',
       line_items: lineItems,
-      return_url: `${baseUrl}/prescription/success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${baseUrl}/prescription/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/prescription`,
       ...(customerEmail ? { customer_email: customerEmail } : {}),
-      // Collect shipping only if the cart contains physical items.
       ...(hasPhysical
         ? {
             shipping_address_collection: {
@@ -140,7 +139,7 @@ export async function POST(request: NextRequest) {
       automatic_tax: { enabled: false },
     });
 
-    return NextResponse.json({ url: session.url, clientSecret: session.client_secret });
+    return NextResponse.json({ url: session.url });
   } catch (err) {
     console.error('[checkout] error', err);
     const message = err instanceof Error ? err.message : 'Checkout failed';
