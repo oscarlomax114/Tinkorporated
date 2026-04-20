@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { products, getProduct } from '@/data/compounds';
 import MetadataRow from '@/components/ui/MetadataRow';
 import SystemAlert from '@/components/ui/SystemAlert';
@@ -33,6 +34,12 @@ export default async function DoseDetailPage({ params }: { params: Promise<{ id:
 
   const isXR = product.format === 'xr';
   const dose = product.doses[0];
+
+  // Product images (add more as they become available)
+  const productImages: Record<string, string> = {
+    'DSG-MD': '/products/dsg-md.png',
+  };
+  const productImage = productImages[product.id] || null;
 
   // Fetch live inventory from database
   let stock: number | null = null;
@@ -80,13 +87,23 @@ export default async function DoseDetailPage({ params }: { params: Promise<{ id:
           {/* Left: Visual */}
           <div className="lg:col-span-5">
             <div className="aspect-[4/5] bg-surface-elevated border border-border relative overflow-hidden lg:sticky lg:top-28">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="text-xs font-mono tracking-[0.3em] text-border-light mb-2">{isXR ? 'XR' : 'DOSAGE'}</div>
-                  <div className="text-xs font-mono tracking-[0.3em] text-border-light">{product.id}</div>
+              {productImage ? (
+                <Image
+                  src={productImage}
+                  alt={product.name}
+                  fill
+                  className="object-cover object-center"
+                  sizes="(max-width: 1024px) 100vw, 40vw"
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-xs font-mono tracking-[0.3em] text-border-light mb-2">{isXR ? 'XR' : 'DOSAGE'}</div>
+                    <div className="text-xs font-mono tracking-[0.3em] text-border-light">{product.id}</div>
+                  </div>
                 </div>
-              </div>
-              <div className="absolute top-4 left-4 px-2.5 py-1 bg-background border border-border text-[9px] font-mono tracking-[0.15em] uppercase">
+              )}
+              <div className="absolute top-4 left-4 px-2.5 py-1 bg-background border border-border text-[9px] font-mono tracking-[0.15em] uppercase z-10">
                 {isXR ? 'Extended Release' : product.classification}
               </div>
               <div className="absolute inset-0 scanline-overlay" />
