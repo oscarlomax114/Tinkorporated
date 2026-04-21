@@ -1,4 +1,9 @@
 import Link from 'next/link';
+import Image from 'next/image';
+
+const productImages: Record<string, string> = {
+  'DSG-MD': '/products/dsg-md.png',
+};
 
 interface DoseCardProps {
   productId: string;
@@ -12,13 +17,18 @@ interface DoseCardProps {
 
 export default function DoseCard({ productId, productName, classification, price, status, badge, href }: DoseCardProps) {
   const isAvailable = status === 'available';
+  const image = productImages[productId];
 
   return (
     <Link href={href} className="group block border border-border hover:border-foreground transition-colors duration-300">
       <div className="aspect-[4/5] bg-surface-elevated relative overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-[10px] font-mono tracking-[0.2em] text-border-light">{productId}</span>
-        </div>
+        {image ? (
+          <Image src={image} alt={productName} fill className="object-cover object-center" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-[10px] font-mono tracking-[0.2em] text-border-light">{productId}</span>
+          </div>
+        )}
         {badge && (
           <div className="absolute top-3 left-3 px-2 py-0.5 bg-background border border-border text-[9px] font-mono tracking-[0.15em] uppercase">
             {badge}

@@ -17,7 +17,10 @@ function getAdminSupabase() {
 
 async function fulfillSession(session: Stripe.Checkout.Session) {
   const adminDb = getAdminSupabase();
-  if (!adminDb) return;
+  if (!adminDb) {
+    console.error('[success] no admin Supabase client — check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY');
+    return;
+  }
 
   const customerEmail = session.customer_details?.email ?? null;
   const customerName = session.customer_details?.name ?? null;
@@ -62,9 +65,11 @@ async function fulfillSession(session: Stripe.Checkout.Session) {
     userId = profile?.id ?? null;
   }
 
-  // Save order (skip if already saved).
+  // Save order (skip if already saved by webhook).
   if (!alreadySaved) {
-    await adminDb.from('orders').insert({
+    console.log('[success] order not yet saved — saving order + decrementing inventory + sending emails');
+
+    const { error: insertError } = await adminDb.from('orders').insert({
       user_id: userId,
       stripe_session_id: session.id,
       customer_email: customerEmail,
@@ -77,7 +82,11 @@ async function fulfillSession(session: Stripe.Checkout.Session) {
       phone: session.customer_details?.phone,
     });
 
-    // Decrement inventory for all products
+    if (insertError) {
+      console.error('[success] failed to insert order:', insertError);
+    }
+
+    // Decrement inventory for all products (even if order insert failed)
     const inventoryItems = items
       .filter((i) => !!i.compoundId)
       .map((i) => ({
@@ -87,89 +96,94 @@ async function fulfillSession(session: Stripe.Checkout.Session) {
       }));
 
     if (inventoryItems.length > 0) {
-      await decrementInventory(inventoryItems);
+      const ok = await decrementInventory(inventoryItems);
+      console.log('[success] inventory decrement result:', ok ? 'success' : 'failed');
     }
-  }
 
-  // Send confirmation email to customer.
-  if (customerEmail && process.env.RESEND_API_KEY) {
-    try {
-      const resend = new Resend(process.env.RESEND_API_KEY);
-      const total = ((session.amount_total ?? 0) / 100).toFixed(2);
-      const ref = session.id.slice(-8).toUpperCase();
+    // Send confirmation emails (only if webhook hasn't already handled this order)
+    if (customerEmail && process.env.RESEND_API_KEY) {
+      try {
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        const total = ((session.amount_total ?? 0) / 100).toFixed(2);
+        const ref = session.id.slice(-8).toUpperCase();
 
-      const itemRows = items
-        .map(
-          (i) =>
-            `<tr>
-              <td style="padding:8px 12px;border-bottom:1px solid #e0e0e0;font-family:monospace;font-size:13px;">${i.quantity}×</td>
-              <td style="padding:8px 12px;border-bottom:1px solid #e0e0e0;font-size:13px;">${i.name}</td>
-              <td style="padding:8px 12px;border-bottom:1px solid #e0e0e0;font-family:monospace;font-size:13px;text-align:right;">$${(i.amount / 100).toFixed(2)}</td>
-            </tr>`
-        )
-        .join('');
+        const itemRows = items
+          .map(
+            (i) =>
+              `<tr>
+                <td style="padding:8px 12px;border-bottom:1px solid #e0e0e0;font-family:monospace;font-size:13px;">${i.quantity}×</td>
+                <td style="padding:8px 12px;border-bottom:1px solid #e0e0e0;font-size:13px;">${i.name}</td>
+                <td style="padding:8px 12px;border-bottom:1px solid #e0e0e0;font-family:monospace;font-size:13px;text-align:right;">$${(i.amount / 100).toFixed(2)}</td>
+              </tr>`
+          )
+          .join('');
 
-      const customerResult = await resend.emails.send({
-        from: 'Tinkorporated <no-reply@tinkorporated.com>',
-        to: customerEmail,
-        subject: `Order Confirmed — REF: ${ref}`,
-        html: `
-          <div style="max-width:560px;margin:0 auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1a1a1a;">
-            <div style="border-bottom:2px solid #1a1a1a;padding:24px 0 16px;">
-              <div style="font-size:10px;letter-spacing:0.2em;color:#888;font-family:monospace;">TINKORPORATED</div>
-              <h1 style="font-size:22px;font-weight:700;letter-spacing:0.08em;margin:8px 0 0;">Order Confirmation</h1>
+        const customerResult = await resend.emails.send({
+          from: 'Tinkorporated <no-reply@tinkorporated.com>',
+          to: customerEmail,
+          subject: `Order Confirmed — REF: ${ref}`,
+          html: `
+            <div style="max-width:560px;margin:0 auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1a1a1a;">
+              <div style="border-bottom:2px solid #1a1a1a;padding:24px 0 16px;">
+                <div style="font-size:10px;letter-spacing:0.2em;color:#888;font-family:monospace;">TINKORPORATED</div>
+                <h1 style="font-size:22px;font-weight:700;letter-spacing:0.08em;margin:8px 0 0;">Order Confirmation</h1>
+              </div>
+              <p style="font-size:14px;color:#555;margin:20px 0;">
+                ${customerName ? `${customerName}, your` : 'Your'} prescription has been dispensed successfully.
+              </p>
+              <div style="background:#f8f8f8;border:1px solid #e0e0e0;padding:16px;margin:20px 0;">
+                <div style="font-size:10px;letter-spacing:0.15em;color:#888;font-family:monospace;margin-bottom:8px;">ORDER REFERENCE</div>
+                <div style="font-size:18px;font-family:monospace;letter-spacing:0.1em;">${ref}</div>
+              </div>
+              <table style="width:100%;border-collapse:collapse;margin:20px 0;">
+                <thead>
+                  <tr>
+                    <th style="padding:8px 12px;border-bottom:2px solid #1a1a1a;font-size:10px;letter-spacing:0.15em;font-family:monospace;text-align:left;color:#888;">QTY</th>
+                    <th style="padding:8px 12px;border-bottom:2px solid #1a1a1a;font-size:10px;letter-spacing:0.15em;font-family:monospace;text-align:left;color:#888;">ITEM</th>
+                    <th style="padding:8px 12px;border-bottom:2px solid #1a1a1a;font-size:10px;letter-spacing:0.15em;font-family:monospace;text-align:right;color:#888;">AMOUNT</th>
+                  </tr>
+                </thead>
+                <tbody>${itemRows}</tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="2" style="padding:12px;font-size:14px;font-weight:600;">Total</td>
+                    <td style="padding:12px;font-family:monospace;font-size:14px;font-weight:600;text-align:right;">$${total}</td>
+                  </tr>
+                </tfoot>
+              </table>
+              <p style="font-size:12px;color:#888;margin:24px 0 4px;">
+                Physical doses ship within 3–5 business days via tracked courier.<br/>
+                Digital doses are delivered immediately.
+              </p>
+              <div style="border-top:1px solid #e0e0e0;margin-top:32px;padding-top:16px;">
+                <p style="font-size:10px;color:#aaa;font-family:monospace;letter-spacing:0.1em;">TINKORPORATED — tinkorporated.com</p>
+              </div>
             </div>
-            <p style="font-size:14px;color:#555;margin:20px 0;">
-              ${customerName ? `${customerName}, your` : 'Your'} prescription has been dispensed successfully.
-            </p>
-            <div style="background:#f8f8f8;border:1px solid #e0e0e0;padding:16px;margin:20px 0;">
-              <div style="font-size:10px;letter-spacing:0.15em;color:#888;font-family:monospace;margin-bottom:8px;">ORDER REFERENCE</div>
-              <div style="font-size:18px;font-family:monospace;letter-spacing:0.1em;">${ref}</div>
-            </div>
-            <table style="width:100%;border-collapse:collapse;margin:20px 0;">
-              <thead>
-                <tr>
-                  <th style="padding:8px 12px;border-bottom:2px solid #1a1a1a;font-size:10px;letter-spacing:0.15em;font-family:monospace;text-align:left;color:#888;">QTY</th>
-                  <th style="padding:8px 12px;border-bottom:2px solid #1a1a1a;font-size:10px;letter-spacing:0.15em;font-family:monospace;text-align:left;color:#888;">ITEM</th>
-                  <th style="padding:8px 12px;border-bottom:2px solid #1a1a1a;font-size:10px;letter-spacing:0.15em;font-family:monospace;text-align:right;color:#888;">AMOUNT</th>
-                </tr>
-              </thead>
-              <tbody>${itemRows}</tbody>
-              <tfoot>
-                <tr>
-                  <td colspan="2" style="padding:12px;font-size:14px;font-weight:600;">Total</td>
-                  <td style="padding:12px;font-family:monospace;font-size:14px;font-weight:600;text-align:right;">$${total}</td>
-                </tr>
-              </tfoot>
-            </table>
-            <p style="font-size:12px;color:#888;margin:24px 0 4px;">
-              Physical doses ship within 3–5 business days via tracked courier.<br/>
-              Digital doses are delivered immediately.
-            </p>
-            <div style="border-top:1px solid #e0e0e0;margin-top:32px;padding-top:16px;">
-              <p style="font-size:10px;color:#aaa;font-family:monospace;letter-spacing:0.1em;">TINKORPORATED — tinkorporated.com</p>
-            </div>
-          </div>
-        `,
-      });
+          `,
+        });
 
-      console.log('[success] customer email result:', JSON.stringify(customerResult));
+        console.log('[success] customer email result:', JSON.stringify(customerResult));
 
-      // Also notify admin.
-      const adminResult = await resend.emails.send({
-        from: 'Tinkorporated <no-reply@tinkorporated.com>',
-        to: 'tinkorporated@gmail.com',
-        subject: `New Order — $${total} from ${customerName ?? 'Customer'}`,
-        html: `<p><strong>New order received</strong></p>
-          <p>Customer: ${customerName ?? 'Unknown'} (${customerEmail})</p>
-          <p>Total: $${total}</p>
-          <p>Items: ${items.map(i => `${i.quantity}× ${i.name}`).join(', ')}</p>
-          <p>Session: ${session.id}</p>`,
-      });
-      console.log('[success] admin email result:', JSON.stringify(adminResult));
-    } catch (err) {
-      console.error('[success] failed to send emails', err);
+        // Also notify admin.
+        const adminResult = await resend.emails.send({
+          from: 'Tinkorporated <no-reply@tinkorporated.com>',
+          to: 'tinkorporated@gmail.com',
+          subject: `New Order — $${total} from ${customerName ?? 'Customer'}`,
+          html: `<p><strong>New order received</strong></p>
+            <p>Customer: ${customerName ?? 'Unknown'} (${customerEmail})</p>
+            <p>Total: $${total}</p>
+            <p>Items: ${items.map(i => `${i.quantity}× ${i.name}`).join(', ')}</p>
+            <p>Session: ${session.id}</p>`,
+        });
+        console.log('[success] admin email result:', JSON.stringify(adminResult));
+      } catch (err) {
+        console.error('[success] failed to send emails', err);
+      }
+    } else if (!process.env.RESEND_API_KEY) {
+      console.error('[success] RESEND_API_KEY not set — cannot send confirmation emails');
     }
+  } else {
+    console.log('[success] order already saved (likely by webhook) — skipping duplicate processing');
   }
 }
 

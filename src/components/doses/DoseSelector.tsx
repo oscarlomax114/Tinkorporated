@@ -111,7 +111,13 @@ export default function DoseSelector({
                 return (
                   <button
                     key={val}
-                    onClick={() => !soldOut && setSelectedOption(val)}
+                    onClick={() => {
+                      if (soldOut) return;
+                      setSelectedOption(val);
+                      window.dispatchEvent(new CustomEvent('variant-selected', {
+                        detail: { productId: product.id, variant: val },
+                      }));
+                    }}
                     disabled={soldOut}
                     className={`py-2.5 text-[11px] font-mono tracking-[0.1em] transition-colors ${
                       soldOut

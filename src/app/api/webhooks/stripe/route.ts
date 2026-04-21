@@ -68,6 +68,9 @@ export async function POST(request: NextRequest) {
 
         // Save order to Supabase (idempotent by stripe_session_id).
         const adminDb = getAdminSupabase();
+        if (!adminDb) {
+          console.error('[webhook] no admin Supabase client — check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY');
+        }
         if (adminDb) {
           const { data: existing } = await adminDb
             .from('orders')
@@ -87,7 +90,7 @@ export async function POST(request: NextRequest) {
               userId = profile?.id ?? null;
             }
 
-            await adminDb.from('orders').insert({
+            const { error: insertError } = await adminDb.from('orders').insert({
               user_id: userId,
               stripe_session_id: session.id,
               customer_email: customerEmail,
@@ -100,7 +103,11 @@ export async function POST(request: NextRequest) {
               phone: session.customer_details?.phone,
             });
 
-            // Decrement inventory for all products
+            if (insertError) {
+              console.error('[webhook] failed to insert order:', insertError);
+            }
+
+            // Decrement inventory for all products (even if order insert failed, to stay in sync)
             const inventoryItems = items
               .filter((i) => !!i.compoundId)
               .map((i) => ({
@@ -110,8 +117,11 @@ export async function POST(request: NextRequest) {
               }));
 
             if (inventoryItems.length > 0) {
-              await decrementInventory(inventoryItems);
+              const ok = await decrementInventory(inventoryItems);
+              console.log('[webhook] inventory decrement result:', ok ? 'success' : 'failed');
             }
+          } else {
+            console.log('[webhook] order already exists for session', session.id);
           }
         }
 

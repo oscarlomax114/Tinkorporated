@@ -480,6 +480,28 @@ body {
   }
 }
 
+/* Mobile landscape: fill the viewport without aspect-ratio constraints */
+@media (max-height: 500px) and (orientation: landscape) {
+  .hero-section {
+    min-height: 0;
+    aspect-ratio: auto;
+    height: 100svh;
+    max-height: none;
+  }
+
+  .hero-title {
+    top: 20% !important;
+  }
+
+  .hero-content {
+    bottom: 2.5rem !important;
+  }
+
+  .hero-scroll {
+    display: none;
+  }
+}
+
 /* Reduced motion: skip everything */
 @media (prefers-reduced-motion: reduce) {
   .entry-overlay {

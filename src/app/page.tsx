@@ -30,14 +30,14 @@ export default function HomePage() {
           EST. 2024 — DOCUMENT REF: TNK-SYS-001
         </div>
 
-        <div className="absolute top-[34%] left-1/2 -translate-x-1/2 text-center animate-fade-in z-10">
+        <div className="hero-title absolute top-[34%] left-1/2 -translate-x-1/2 text-center animate-fade-in z-10">
           <h1 className="sr-only">TINKORPORATED</h1>
           <div className="text-[10px] md:text-xs font-mono tracking-[0.35em] text-white/60">
             TINKORPORATED
           </div>
         </div>
 
-        <div className="absolute bottom-16 md:bottom-20 left-1/2 -translate-x-1/2 text-center animate-fade-in stagger-3 w-full px-4">
+        <div className="hero-content absolute bottom-16 md:bottom-20 left-1/2 -translate-x-1/2 text-center animate-fade-in stagger-3 w-full px-4">
           <p className="text-xs md:text-base tracking-[0.1em] text-white/90 max-w-lg mx-auto leading-relaxed">
             Ideas, formulated as treatments.
           </p>
@@ -51,7 +51,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-fade-in stagger-5">
+        <div className="hero-scroll absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-fade-in stagger-5">
           <span className="text-[9px] font-mono tracking-[0.2em] text-white/40">SCROLL</span>
           <div className="w-[1px] h-6 bg-white/20 relative overflow-hidden">
             <div className="absolute inset-x-0 h-3 bg-white/40" style={{ animation: 'scanline 2s ease-in-out infinite' }} />
