@@ -43,6 +43,12 @@ export default function HeroVideo() {
 
   return (
     <>
+      {/* Poster: first frame shown immediately, hides once video plays */}
+      <img
+        src="/tink-hero-poster.png"
+        alt=""
+        className={`absolute inset-0 w-full h-full object-cover pointer-events-none transition-opacity duration-700 ${playing ? 'opacity-0' : 'opacity-100'}`}
+      />
       {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
       <video
         ref={videoRef}
@@ -55,14 +61,10 @@ export default function HeroVideo() {
         disablePictureInPicture
         disableRemotePlayback
         controlsList="nodownload nofullscreen noremoteplayback"
-        className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+        className={`absolute inset-0 w-full h-full object-cover pointer-events-none transition-opacity duration-700 ${playing ? 'opacity-100' : 'opacity-0'}`}
       >
         <source src="/tink-hero-vid.mp4" type="video/mp4" />
       </video>
-      {/* Opaque cover that hides the native play button, fades out once video plays */}
-      <div
-        className={`absolute inset-0 bg-black transition-opacity duration-700 pointer-events-none ${playing ? 'opacity-0' : 'opacity-100'}`}
-      />
     </>
   );
 }
