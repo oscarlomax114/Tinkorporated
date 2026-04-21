@@ -455,6 +455,17 @@ body {
   pointer-events: none;
 }
 
+/* Hide native video controls (play button flash on first load) */
+video::-webkit-media-controls,
+video::-webkit-media-controls-panel,
+video::-webkit-media-controls-play-button,
+video::-webkit-media-controls-start-playback-button {
+  display: none !important;
+  -webkit-appearance: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* Hero section: responsive height to prevent logo cropping */
 .hero-section {
   /* Desktop: full viewport height */

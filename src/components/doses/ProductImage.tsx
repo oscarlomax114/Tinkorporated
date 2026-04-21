@@ -16,6 +16,7 @@ const variantImages: Record<string, Record<string, string>> = {
 
 const productImages: Record<string, string> = {
   'DSG-MD': '/products/dsg-md.png',
+  'DSG-OS': '/products/os_mock.png',
 };
 
 export default function ProductImage({

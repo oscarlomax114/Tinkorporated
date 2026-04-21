@@ -3,6 +3,7 @@ import Image from 'next/image';
 
 const productImages: Record<string, string> = {
   'DSG-MD': '/products/dsg-md.png',
+  'DSG-OS': '/products/os_mock.png',
 };
 
 interface DoseCardProps {

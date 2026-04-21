@@ -49,10 +49,13 @@ export default function HeroVideo() {
       loop
       muted
       playsInline
+      controls={false}
       preload="auto"
       disablePictureInPicture
+      disableRemotePlayback
       controlsList="nodownload nofullscreen noremoteplayback"
       className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+      style={{ WebkitMediaControls: 'none' } as React.CSSProperties}
     >
       <source src="/tink-hero-vid.mp4" type="video/mp4" />
     </video>
