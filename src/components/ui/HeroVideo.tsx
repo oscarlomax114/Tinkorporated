@@ -1,30 +1,29 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 
 export default function HeroVideo() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
     const vid = videoRef.current;
     if (!vid) return;
 
-    // Ensure muted is set as property (required for iOS autoplay)
     vid.defaultMuted = true;
     vid.muted = true;
     vid.playbackRate = 0.7;
 
-    // Force play
+    const onPlaying = () => setPlaying(true);
+    vid.addEventListener('playing', onPlaying);
+
     const tryPlay = () => {
       vid.play().catch(() => {});
     };
 
     tryPlay();
-
-    // Retry when video data is loaded
     vid.addEventListener('loadeddata', tryPlay);
 
-    // Last resort: play on first user interaction
     const onInteract = () => {
       vid.muted = true;
       tryPlay();
@@ -35,6 +34,7 @@ export default function HeroVideo() {
     document.addEventListener('scroll', onInteract, { once: true, passive: true });
 
     return () => {
+      vid.removeEventListener('playing', onPlaying);
       vid.removeEventListener('loadeddata', tryPlay);
       document.removeEventListener('touchstart', onInteract);
       document.removeEventListener('scroll', onInteract);
@@ -54,8 +54,7 @@ export default function HeroVideo() {
       disablePictureInPicture
       disableRemotePlayback
       controlsList="nodownload nofullscreen noremoteplayback"
-      className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-      style={{ WebkitMediaControls: 'none' } as React.CSSProperties}
+      className={`absolute inset-0 w-full h-full object-cover pointer-events-none transition-opacity duration-500 ${playing ? 'opacity-100' : 'opacity-0'}`}
     >
       <source src="/tink-hero-vid.mp4" type="video/mp4" />
     </video>
