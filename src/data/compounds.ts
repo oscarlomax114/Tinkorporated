@@ -159,7 +159,7 @@ export const xrDoses = activeProducts.filter(p => p.format === 'xr');
 export const activeCompounds = activeProducts;
 export const archivedCompounds = archivedProducts;
 
-export const allDoses = products.flatMap(p => p.doses);
+export const allDoses = activeProducts.flatMap(p => p.doses);
 export const availableDoses = allDoses.filter(d => d.status === 'available');
 export const depletedDoses = allDoses.filter(d => d.status === 'depleted');
 
