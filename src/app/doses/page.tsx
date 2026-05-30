@@ -79,32 +79,34 @@ export default async function DosesPage() {
         </div>
       </div>
 
-      {/* Extended Release */}
-      <div className="max-w-[1440px] mx-auto px-4 md:px-8 pb-12 md:pb-16">
-        <SectionLabel label="Extended Release" code="XR" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[1px] bg-border">
-          {xrDoses.map((product) => {
-            const dose = product.doses[0];
-            const liveStock = stockMap[product.id];
-            const status = liveStock !== undefined
-              ? (liveStock > 0 ? 'available' : 'depleted')
-              : dose.status;
-            return (
-              <div key={product.id} className="bg-background">
-                <DoseCard
-                  productId={product.id}
-                  productName={product.name}
-                  classification={product.classification}
-                  price={dose.price}
-                  status={status as 'available' | 'depleted'}
-                  badge="XR"
-                  href={`/doses/${product.id}`}
-                />
-              </div>
-            );
-          })}
+      {/* Extended Release — hidden while all XR products are archived */}
+      {xrDoses.length > 0 && (
+        <div className="max-w-[1440px] mx-auto px-4 md:px-8 pb-12 md:pb-16">
+          <SectionLabel label="Extended Release" code="XR" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[1px] bg-border">
+            {xrDoses.map((product) => {
+              const dose = product.doses[0];
+              const liveStock = stockMap[product.id];
+              const status = liveStock !== undefined
+                ? (liveStock > 0 ? 'available' : 'depleted')
+                : dose.status;
+              return (
+                <div key={product.id} className="bg-background">
+                  <DoseCard
+                    productId={product.id}
+                    productName={product.name}
+                    classification={product.classification}
+                    price={dose.price}
+                    status={status as 'available' | 'depleted'}
+                    badge="XR"
+                    href={`/doses/${product.id}`}
+                  />
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

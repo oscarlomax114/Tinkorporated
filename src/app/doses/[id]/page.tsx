@@ -33,6 +33,7 @@ export default async function DoseDetailPage({ params }: { params: Promise<{ id:
   if (!visible) return notFound();
 
   const isXR = product.format === 'xr';
+  const isPreOrder = product.id === 'DSG-MD' || product.id === 'DSG-OS';
   const dose = product.doses[0];
 
   // Fetch live inventory from database
@@ -89,12 +90,19 @@ export default async function DoseDetailPage({ params }: { params: Promise<{ id:
 
           {/* Right: Dossier */}
           <div className="lg:col-span-7">
+            {/* Pre-order banner */}
+            {isPreOrder && (
+              <SystemAlert type="info" className="mb-8">
+                FIRST EDITION PRE-ORDER — Limited to 250 units. Pre-order ends June 13, 2026. All orders will be shipped by June 20, 2026. Shipping is $4.99 per order.
+              </SystemAlert>
+            )}
+
             {/* Header */}
             <div className="mb-8">
               <div className="flex items-center gap-3 mb-4">
                 <span className={`status-dot ${isAvailable ? 'status-active' : 'status-restricted'}`} />
                 <span className="text-[10px] font-mono tracking-[0.15em] text-muted uppercase">
-                  {isAvailable ? 'Available for Prescription' : 'Sold Out'}
+                  {isPreOrder ? 'Pre-Order — First Edition' : isAvailable ? 'Available for Prescription' : 'Sold Out'}
                 </span>
               </div>
               <h1 className="text-3xl md:text-4xl font-bold tracking-[0.08em] mb-3">{product.name}</h1>

@@ -123,11 +123,11 @@ export async function POST(request: NextRequest) {
               {
                 shipping_rate_data: {
                   type: 'fixed_amount',
-                  fixed_amount: { amount: 0, currency: 'usd' },
-                  display_name: 'Standard courier (3–5 business days)',
+                  fixed_amount: { amount: 499, currency: 'usd' },
+                  display_name: 'Standard shipping',
                   delivery_estimate: {
-                    minimum: { unit: 'business_day', value: 3 },
-                    maximum: { unit: 'business_day', value: 5 },
+                    minimum: { unit: 'business_day', value: 5 },
+                    maximum: { unit: 'business_day', value: 10 },
                   },
                 },
               },
