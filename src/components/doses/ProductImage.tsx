@@ -11,6 +11,11 @@ const variantImages: Record<string, Record<string, string>> = {
     'F-AF1': '/products/os_af1.png',
     'F-AS1': '/products/os_as1.png',
     'F-SS1': '/products/os_ss1.png',
+    'F-GR1': '/products/os_gr1.png',
+    'F-N51': '/products/os_n51.png',
+    'F-RY1': '/products/os_ry1.png',
+    'F-FZ1': '/products/os_fz1.png',
+    'F-HY1': '/products/os_hy1.png',
   },
 };
 
