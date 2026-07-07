@@ -23,6 +23,31 @@ export interface InventoryRow {
   stock: number;
 }
 
+/**
+ * Like getInventory but returns null when no row exists in the DB,
+ * so callers can distinguish "no row → fall back to static status"
+ * from "row with 0 stock → actually sold out".
+ */
+export async function getInventoryNullable(
+  productId: string,
+  variant?: string | null
+): Promise<number | null> {
+  const db = getPublicSupabase();
+  let query = db
+    .from('inventory')
+    .select('stock')
+    .eq('product_id', productId);
+
+  if (variant) {
+    query = query.eq('variant', variant);
+  } else {
+    query = query.is('variant', null);
+  }
+
+  const { data } = await query.maybeSingle();
+  return data?.stock ?? null;
+}
+
 /** Get stock for a single product/variant. */
 export async function getInventory(
   productId: string,

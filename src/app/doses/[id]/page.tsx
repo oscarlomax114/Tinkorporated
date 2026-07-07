@@ -6,7 +6,7 @@ import MetadataRow from '@/components/ui/MetadataRow';
 import SystemAlert from '@/components/ui/SystemAlert';
 import SectionLabel from '@/components/ui/SectionLabel';
 import DoseSelector from '@/components/doses/DoseSelector';
-import { getInventory, getProductInventory } from '@/lib/inventory';
+import { getInventory, getInventoryNullable, getProductInventory } from '@/lib/inventory';
 import { isProductVisible } from '@/lib/visibility';
 
 export const dynamic = 'force-dynamic';
@@ -53,11 +53,9 @@ export default async function DoseDetailPage({ params }: { params: Promise<{ id:
     }
     // If no rows returned (table not set up), stock stays null → falls back to static status
   } else {
-    // DSG-MD, XR-001, XR-002, XR-003 — single inventory row each
-    const fetched = await getInventory(product.id);
-    // getInventory returns 0 when row not found — distinguish from actual 0 stock
-    // by checking if the row exists
-    stock = fetched;
+    // Returns null when no DB row exists, so we can fall back to static dose.status
+    // rather than treating "no row" as "sold out".
+    stock = await getInventoryNullable(product.id);
   }
 
   const isAvailable = stock !== null ? stock > 0 : dose.status === 'available';
