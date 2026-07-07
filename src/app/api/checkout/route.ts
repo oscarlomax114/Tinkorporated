@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { compounds } from '@/data/compounds';
 import { createClient } from '@/lib/supabase/server';
-import { getInventory } from '@/lib/inventory';
+import { getInventoryNullable } from '@/lib/inventory';
 
 interface CartItem {
   doseId: string;
@@ -61,9 +61,9 @@ export async function POST(request: NextRequest) {
 
       const qty = Math.max(1, Math.floor(item.quantity || 1));
 
-      // Check live inventory (skip if table not available)
+      // Check live inventory — null means no DB row, so skip the check and allow purchase.
       try {
-        const currentStock = await getInventory(compound.id, selectedOption ?? null);
+        const currentStock = await getInventoryNullable(compound.id, selectedOption ?? null);
         if (currentStock !== null && currentStock < qty) {
           return NextResponse.json(
             { error: `Insufficient stock for ${compound.name}${selectedOption ? ` — ${selectedOption}` : ''}` },
