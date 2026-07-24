@@ -35,6 +35,7 @@ export async function POST(request: NextRequest) {
     }> = [];
 
     let hasPhysical = false;
+    let shippingAmount = 499; // default $4.99
 
     for (const item of items) {
       // Support option-suffixed IDs like "d-dsg-open:003".
@@ -58,6 +59,10 @@ export async function POST(request: NextRequest) {
       }
 
       hasPhysical = true;
+
+      if (dose.shipping !== undefined) {
+        shippingAmount = Math.max(shippingAmount, Math.round(dose.shipping * 100));
+      }
 
       const qty = Math.max(1, Math.floor(item.quantity || 1));
 
@@ -123,7 +128,7 @@ export async function POST(request: NextRequest) {
               {
                 shipping_rate_data: {
                   type: 'fixed_amount',
-                  fixed_amount: { amount: 499, currency: 'usd' },
+                  fixed_amount: { amount: shippingAmount, currency: 'usd' },
                   display_name: 'Standard shipping',
                   delivery_estimate: {
                     minimum: { unit: 'business_day', value: 5 },

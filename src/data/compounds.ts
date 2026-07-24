@@ -9,6 +9,7 @@ export interface Dose {
   title: string;
   type: 'physical';
   price: number;
+  shipping?: number;
   inventory?: number;
   status: 'available' | 'depleted';
   composition: string;
@@ -78,21 +79,22 @@ export const products: Product[] = [
   },
   {
     id: 'BDL-9F',
-    name: 'Dosage — 9 Figure Bundle',
-    description: 'Nine-unit multi-dose pack. Contains nine randomly assigned compounds from the current batch. Distributed at a reduced per-unit rate. Contents remain unknown until opened.',
-    classification: 'Bundle (9 × 2.5" Figure)',
+    name: 'Dosage — 10 Figure Set',
+    description: 'Ten-unit multi-dose set. Contains ten randomly assigned compounds from the current batch. Distributed at a reduced per-unit rate. Contents remain unknown until opened.',
+    classification: 'Set (10 × 2.5" Figure)',
     format: 'standard',
     status: 'active',
     doses: [
       {
         id: 'd-bundle-9',
         productId: 'BDL-9F',
-        title: '9 Figure Bundle',
+        title: '10 Figure Set',
         type: 'physical',
-        price: 99.99,
-        inventory: 1,
+        price: 129.99,
+        shipping: 9.99,
+        inventory: 100,
         status: 'available',
-        composition: 'Nine 2.5-inch figures, prescription-style containers, compounds assigned at random from current batch',
+        composition: 'Ten 2.5-inch figures, prescription-style containers, compounds assigned at random from current batch',
         notes: 'Each unit contains one randomly assigned compound. Contents remain unknown until opened. Current batch may include black, blue, pink, white/orange, and hand-painted variants. Outcomes are not selectable and probability is not uniform.',
         administrationMethod: 'Ships within 5–10 business days via tracked courier.',
         sideEffects: 'Contents may differ from expectations. No exchanges on dispensed units.',
